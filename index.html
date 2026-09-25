@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'Infographies de Bowls Interactif</title>
+    <style>
+        body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f4f6fa; margin: 0; padding: 20px; color: #1e293b; }
+        .generateur-container { display: flex; gap: 30px; max-width: 1250px; margin: 0 auto; align-items: flex-start; }
+
+        /* BARRE DE NAVIGATION MAÎTRE - BLEU ROYAL */
+        .master-nav { background: #0f4c81; width: 100%; max-width: 1250px; margin: 0 auto 25px auto; padding: 12px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .nav-brand { color: #ffffff; font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-links a { color: #ffffff; text-decoration: none; font-size: 13px; font-weight: bold; text-transform: uppercase; padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.15); transition: background 0.2s; }
+        .nav-links a:hover { background: #ff6b35; }
+
+        /* LE FORMULAIRE DE GAUCHE */
+        .form-box { background: #ffffff; width: 380px; padding: 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #cbd5e1; position: sticky; top: 20px; }
+        .form-box h2 { color: #0f4c81; margin-top: 0; font-size: 20px; border-bottom: 3px solid #ffbc42; padding-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #334155; }
+        .form-group select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #cbd5e1; background: #f8fafc; font-size: 14px; }
+        .checkbox-grid { display: grid; grid-template-columns: 1fr; max-height: 250px; overflow-y: auto; gap: 10px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #cbd5e1; }
+        .checkbox-grid label { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 13px; cursor: pointer; }
+        form button { width: 100%; background: #ff6b35; color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(255,107,53,0.2); }
+        form button:hover { background: #e05322; }
+
+        /* L'INFOGRAPHIE STYLE REPAS */
+        .infographie { background: #faf9f5; width: 750px; border-radius: 30px; padding: 35px; box-shadow: 0 15px 40px rgba(0,0,0,0.06); border: 1px solid #ebdccb; }
+        .header-container { display: flex; align-items: center; margin-bottom: 5px; }
+        .main-number { background: #0f4c81; color: #ffffff; font-size: 26px; font-weight: bold; width: 55px; height: 55px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px; }
+        h1 { color: #0f4c81; font-size: 32px; font-weight: 800; margin: 0; text-transform: uppercase; }
+        h1 span { color: #ff6b35; }
+        .banner-tagline { background: #0f4c81; color: white; display: inline-block; padding: 6px 18px; border-radius: 20px; font-weight: bold; font-size: 13px; text-transform: uppercase; margin-top: 10px; margin-bottom: 15px; }
+        .intro-text { color: #4a5568; font-size: 15px; line-height: 1.6; margin: 0 0 25px 0; }
+
+        /* BADGES DE NUTRIMENTS */
+        .nutri-badges { display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap; }
+        .badge { background: white; border-radius: 20px; padding: 8px 14px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #edf2f7; min-width: 120px; }
+        .badge-icon { font-size: 16px; background: #edf2f7; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .badge-text { font-size: 12px; color: #4a5568; }
+        .badge-text b { color: #0f4c81; display: block; }
+
+        /* LISTE D'ÉPICERIE COCHABLE */
+        .liste-epicerie { background: #f8fafc; border: 2px dashed #0f4c81; border-radius: 15px; padding: 20px; margin-bottom: 25px; }
+        .liste-epicerie h3 { color: #0f4c81; margin-top: 0; font-size: 16px; text-transform: uppercase; margin-bottom: 12px; }
+        .epicerie-item { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 14px; border-bottom: 1px dashed #e2e8f0; color: #4a5568; }
+        .epicerie-item input { width: 16px; height: 16px; cursor: pointer; }
+
+        /* ENCADRÉS CENTRAUX (INGRÉDIENTS & SAUCE) */
+        .middle-section { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 25px; margin-bottom: 35px; }
+        .card-box { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 8px 20px rgba(0,0,0,0.02); border: 1px solid #ebdccb; }
+        .card-box.sauce-box { border: 1px solid #cbd5e1; background: #fdfefe; }
+        .card-box h2 { color: #0f4c81; font-size: 18px; margin-top: 0; margin-bottom: 15px; text-transform: uppercase; }
+        .card-box ul { list-style: none; padding: 0; margin: 0; }
+        .card-box li { padding: 8px 0; border-bottom: 1px dashed #f0f0f0; font-size: 14px; color: #4a5568; }
+
+        /* SECTION PREPARATION */
+        .prep-title-banner { background: #0f4c81; color: white; text-align: center; padding: 10px; font-weight: bold; font-size: 16px; text-transform: uppercase; letter-spacing: 2px; border-radius: 12px; margin-bottom: 25px; }
+        .steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 40px; }
+        .step-card { background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); border: 1px solid #e2e8f0; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+        .step-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-color: #0f4c81; }
+        .step-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .step-num { background: #ff6b35; color: white; font-weight: bold; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; }
+        .step-name { font-weight: bold; color: #0f4c81; text-transform: uppercase; font-size: 12px; }
+        .step-desc { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+        /* PIED DE PAGE */
+        .footer-blocks { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; border-top: 2px solid #e2e8f0; padding-top: 25px; }
+        .footer-card h3 { color: #0f4c81; font-size: 13px; text-transform: uppercase; margin-top: 0; margin-bottom: 10px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
+        .footer-card p, .footer-card li { font-size: 11px; color: #64748b; line-height: 1.4; margin: 0; }
+        .footer-card ul { padding-left: 12px; margin: 0; }
+        .footer-card li { margin-bottom: 4px; }
+        .final-banner { background: #0f4c81; color: white; text-align: center; padding: 12px; font-weight: bold; font-size: 13px; border-radius: 12px; margin-top: 30px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-imprimer { background: #0f4c81 !important; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-transform: uppercase; }
+
+        /* MODE PLEIN ÉCRAN ZOOM */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: #faf9f5; border: 3px solid #0f4c81; width: 550px; padding: 40px; border-radius: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; position: relative; }
+        .modal-close { position: absolute; top: 15px; right: 20px; font-size: 28px; color: #64748b; cursor: pointer; font-weight: bold; }
+        .modal-num { background: #ff6b35; color: white; width: 45px; height: 45px; border-radius: 50%; font-size: 22px; font-weight: bold; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px auto; }
+        .modal-title { font-size: 24px; font-weight: bold; color: #0f4c81; text-transform: uppercase; margin-bottom: 20px; }
+        .modal-body { font-size: 18px; color: #334155; line-height: 1.6; font-weight: 500; }
+
+        @media print {
+            .form-box, .btn-imprimer, .modal-overlay, .master-nav, #btnViderEpi { display: none !important; }
+            body { padding: 0; background: white; }
+            .infographie { width: 100%; box-shadow: none; border: none; padding: 0; }
+        }
+        @media print {
+            .form-box, .btn-imprimer, .modal-overlay { display: none !important; }
+            body { padding: 0; background: white; }
+            .infographie { width: 100%; box-shadow: none; border: none; padding: 0; }
+        }
+
+        /* ========================================================
+           ADAPTATION ÉCRANS POUR TABLETTES ET TÉLÉPHONES MOBILE
+           ======================================================== */
+        @media screen and (max-width: 1100px) {
+            .generateur-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+                padding: 10px;
+            }
+            .form-box {
+                width: 100%;
+                max-width: 600px;
+                position: static;
+            }
+            .infographie {
+                width: 100%;
+                max-width: 600px;
+                padding: 20px;
+                border-radius: 20px;
+            }
+            .steps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .middle-section {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .steps-grid {
+                grid-template-columns: 1fr;
+            }
+            .modal-content {
+                width: 90%;
+                padding: 25px 15px;
+            }
+            h1 {
+                font-size: 24px;
+            }
+            .main-number {
+                width: 45px;
+                height: 45px;
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========================================================
+     DEBUT DE LA ZONE AJOUTÉE : BOUTON SEMAINE
+     ======================================================== -->
+<nav class="master-nav">
+    <div class="nav-brand">🍳 Mon Assistant Cuisine Pro</div>
+    <div class="nav-links">
+        <a href="planning.html">📅 Aller au Planificateur Hebdomadaire (3 Repas/Jour) ➔</a>
+    </div>
+</nav>
+<!-- ========================================================
+     FIN DE LA ZONE AJOUTÉE
+     ======================================================== -->
+
+<div class="generateur-container">
+    <!-- PANNEAU DE CONTRÔLE DE GAUCHE MIS À JOUR -->
+    <div class="form-box">
+        <h2>🛠️ Créez votre Repas sur mesure</h2>
+        <p>Sélectionnez vos préférences pour générer automatiquement votre fiche recette graphique.</p>
+        
+        <form id="bowlForm">
+            <!-- SÉLECTEUR DE MODE -->
+            <div class="form-group">
+                <label><b>1. Type de Repas / Format :</b></label>
+                <select id="modeRepas" required>
+                    <option value="lunch">🍱 Boîte repas / Lunch (À apporter)</option>
+                    <option value="assiette">🍽️ Version Assiette (Maison)</option>
+                    <option value="bowl">🥗 Format Bowl (Complet)</option>
+                </select>
+            </div>
+
+            <!-- NOUVEAU : SÉLECTEUR DE PORTIONS -->
+            <div class="form-group">
+                <label><b>2. Nombre de portions (Famille / Batch Cooking) :</b></label>
+                <select id="portions" required>
+                    <option value="1">1 personne</option>
+                    <option value="2">2 personnes</option>
+                    <option value="4">4 personnes</option>
+                    <option value="6">6 personnes</option>
+                </select>
+            </div>
+
+            <!-- SÉLECTION DU FÉCULENT / PAIN MIS À JOUR -->
+            <div class="form-group">
+                <label><b>3. Choisissez votre Base (Féculent / Pain) :</b></label>
+                <select id="feculent" required>
+                    <option value="pates">Pâtes (Penne / Fusilli / Macaroni)</option>
+                    <option value="riz">Riz (Blanc / Jasmin / Brun)</option>
+                    <option value="patates">Pommes de terre en dés</option>
+                    <option value="dauphinois">Gratin Dauphinois</option>
+                    <option value="puree">Purée de pommes de terre</option>
+                    <option value="lasagne">Pâtes à Lasagne</option>
+                    <option value="naan_pita">Pain Naan / Pain Pita</option>
+                    <option value="pain">Pain (Tranches / Baguette)</option>
+                </select>
+            </div>
+
+            <!-- SÉLECTION DE LA PROTÉINE (DÉJÀ PRÉSENTE) -->
+            <div class="form-group">
+                <label><b>3. Choisissez votre Protéine :</b></label>
+                <select id="proteine" required>
+                    <option value="poulet">Poulet Grillé</option>
+                    <option value="saumon">Saumon Frais</option>
+                    <option value="crevettes">Crevettes Sautées</option>
+                    <option value="porc">Porc Effiloché</option>
+                    <option value="mignon">Filet Mignon</option>
+                    <option value="hache">Viande Hachée</option>
+                    <option value="cotelette">Côtelette de Porc</option>
+                    <option value="travers">Côtes Levées</option>
+                    <option value="charcuterie">Viandes Froides (Charcuteries)</option>
+                    <option value="smoked_meat">Smoked Meat</option>
+                </select>
+            </div>
+
+            <!-- NOUVEAU : SÉLECTEUR DE SAUCE INDÉPENDANT -->
+            <div class="form-group">
+                <label><b>4. Choisissez votre Sauce / Assaisonnement :</b></label>
+                <select id="sauceRepas" required>
+                    <option value="citron">🍯 Crème Citronnée (Chaude)</option>
+                    <option value="cheddar">🧀 Onctueuse au Cheddar (Chaude)</option>
+                    <option value="alfredo">🥛 Sauce Alfredo Crémeuse (Chaude)</option>
+                    <option value="carbonara">🥓 Style Carbonara (Chaude)</option>
+                    <option value="herbes">🌿 Crème Sûre & Herbes (Froide / Tiède)</option>
+                </select>
+            </div>
+
+            <!-- SÉLECTION DES LÉGUMES COMPLÈTE -->
+            <div class="form-group">
+                <label><b>4. Sélectionnez vos Légumes (Max 4) :</b></label>
+                <div class="checkbox-grid" style="grid-template-columns: 1fr; max-height: 250px; overflow-y: auto; padding: 10px;">
+                    <label><input type="checkbox" name="legumes" value="zucchini" checked> Zucchini</label>
+                    <label><input type="checkbox" name="legumes" value="macedoine"> Macédoine de légumes</label>
+                    <label><input type="checkbox" name="legumes" value="tomate"> Tomate (Rôtie / Compotée)</label>
+                    <label><input type="checkbox" name="legumes" value="concombre"> Concombre poêlé</label>
+                    <label><input type="checkbox" name="legumes" value="mais"> Maïs grillé</label>
+                    <label><input type="checkbox" name="legumes" value="epinards"> Épinards tombés</label>
+                    <label><input type="checkbox" name="legumes" value="haricots"> Haricots / Pois tendres</label>
+                    <label><input type="checkbox" name="legumes" value="radis"> Radis poêlés</label>
+                    <label><input type="checkbox" name="legumes" value="avocat"> Avocat saisi</label>
+                    <label><input type="checkbox" name="legumes" value="artichaut"> Artichauts grillés</label>
+                    <label><input type="checkbox" name="legumes" value="palmier"> Cœurs de Palmier</label>
+                    <label><input type="checkbox" name="legumes" value="poivron"> Poivrons grillés</label>
+                    <label><input type="checkbox" name="legumes" value="brocoli"> Brocoli vapeur</label>
+                    <label><input type="checkbox" name="legumes" value="choufleur"> Chou-Fleur rôti</label>
+                    <label><input type="checkbox" name="legumes" value="carotte"> Carottes tendres</label>
+                    <label><input type="checkbox" name="legumes" value="betterave"> Betteraves fondantes</label>
+                </div>
+            </div>
+
+            <button type="button" onclick="genererLaRecette()">✨ Générer la fiche recette</button>
+        </form>
+    </div>
+
+    <!-- ZONE D'AFFICHAGE DE L'INFOGRAPHIE DYNAMIQUE -->
+    <div class="infographie" id="ficheRecette" style="display:none;">
+        <div class="header-container">
+            <div class="main-number">✦</div>
+            <h1 id="dynTitle">Bowl Custom</h1>
+        </div>
+        <div class="banner-tagline">Équilibré, Rassasiant & Ultra Healthy !</div>
+        
+        <div>
+            <button type="button" class="btn-imprimer" onclick="setTimeout(function(){ window.print(); }, 10)">🖨️ Imprimer cette fiche recette</button>
+        </div>
+        
+        <p class="intro-text" id="dynIntro">Votre recette personnalisée avec des ingrédients entièrement cuits.</p>
+
+        <div class="nutri-badges" id="dynBadges"></div>
+
+        <!-- LISTE D'ÉPICERIE INTERACTIVE -->
+        <div class="liste-epicerie">
+            <h3>🛒 Liste d'épicerie complète (À cocher sur écran)</h3>
+            <div id="dynEpicerie"></div>
+        </div>
+
+        <div class="middle-section">
+            <div class="card-box">
+                <h2>🥗 Ingrédients — À mettre dans le bol</h2>
+                <ul id="dynIngredients"></ul>
+            </div>
+            <div class="card-box sauce-box">
+                <h2 id="dynSauceTitle">🍯 Sauce Recommandée</h2>
+                <ul id="dynSauce"></ul>
+            </div>
+        </div>
+
+        <div class="prep-title-banner">✦ LA PRÉPARATION PAS À PAS (Cliquez pour agrandir) ✦</div>
+        <div class="steps-grid" id="dynSteps"></div>
+
+        <div class="footer-blocks">
+            <div class="footer-card">
+                <h3>Variations</h3>
+                <p>Changez de féculent ou de protéine pour créer une variante totalement différente en un clic.</p>
+            </div>
+            <div class="footer-card">
+                <h3>Conseils</h3>
+                <p>Pour un repas rapide, préparez vos légumes cuits à l'avance durant le week-end.</p>
+            </div>
+            <div class="footer-card">
+                <h3>Conservation</h3>
+                <p>❄️ 3 jours maximum au réfrigérateur dans un contenant hermétique bien scellé.</p>
+            </div>
+            <div class="footer-card" id="dynPourquoi">
+                <h3>Pourquoi il est top</h3>
+            </div>
+        </div>
+
+        <div class="final-banner">Sain, Coloré & Délicieux : Le Bowl qui fait du bien !</div>
+    </div>
+</div>
+
+<!-- FENÊTRE MODALE MODIFIÉE POUR LE MINUTEUR SONORE -->
+<div class="modal-overlay" id="stepModal" onclick="fermerModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <span class="modal-close" onclick="fermerModal()">&times;</span>
+        <div class="modal-num" id="modalNum">0</div>
+        <div class="modal-title" id="modalTitle">Étape</div>
+        <div class="modal-body" id="modalBody">Description...</div>
+        
+        <!-- INTÉGRATION VISUELLE DU MINUTEUR -->
+        <div id="timerContainer" style="margin-top: 25px; display: none; background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #cbd5e1;">
+            <div id="timerDisplay" style="font-size: 32px; font-weight: bold; color: #ff6b35; margin-bottom: 10px;">00:00</div>
+            <button type="button" id="btnTimerControl" onclick="basculerMinuteur()" style="background: #0f4c81; color: white; border: none; padding: 8px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; font-size: 13px;">⏱️ Démarrer</button>
+        </div>
+    </div>
+</div>
+
+<!-- INCLUSION DU SCRIPT LOGIQUE INTERACTIF -->
+<script>
+const DATA_CONFIG = {
+    feculents: {
+        pates: { nom: "Pâtes", icone: "🍝", quantite: 150, unite: "g", desc: "de pâtes (penne ou fusilli) cuites al dente", etape: "Cuire les pâtes dans l'eau bouillante salée en suivant le temps indiqué sur l'emballage. Égoutter." },
+        riz: { nom: "Riz", icone: "🍚", quantite: 150, unite: "g", desc: "de riz (blanc, jasmin ou brun) cuit à la vapeur", etape: "Cuire le riz dans une casserole d'eau bouillante salée ou au cuiseur à riz. Réserver au chaud." },
+        patates: { nom: "Pommes de terre", icone: "🥔", quantite: 150, unite: "g", desc: "de pommes de terre coupées en petits dés", etape: "Enrober les dés de pommes de terre d'huile, sel, poivre et les rôtir au four à 200°C (400°F) ou à la poêle pendant 20 min." },
+        dauphinois: { nom: "Gratin Dauphinois", icone: "🧀", quantite: 200, unite: "g", desc: "de pommes de terre tranchées finement (style dauphinois)", etape: "Trancher les pommes de terre, les disposer en couches avec de la crème, de l'ail et un peu de fromage, puis cuire au four à 180°C (350°F) pendant 45 min." },
+        puree: { nom: "Purée de pommes de terre", icone: "🥣", quantite: 180, unite: "g", desc: "de pommes de terre pilées en purée", etape: "Cuire les pommes de terre à l'eau, puis les piler avec une touche de lait, de beurre, du sel et du poivre jusqu'à consistance crémeuse." },
+        lasagne: { nom: "Pâtes à Lasagne", icone: "🥘", quantite: 5, unite: " feuilles", desc: "de pâtes à lasagne précuites", etape: "Cuire les feuilles de lasagne à l'eau bouillante ou les intégrer directement en couches si elles sont précuites." },
+        naan_pita: { nom: "Pain Naan / Pita", icone: "🫓", quantite: 1, unite: " pain(s)", desc: "Naan ou pain Pita frais", etape: "Réchauffer légèrement le pain Naan ou Pita au four ou au grille-pain juste avant de servir pour qu'il soit moelleux." },
+        pain: { nom: "Pain", icone: "🥖", quantite: 3, unite: " tranches", desc: "de pain frais ou de baguette", etape: "Trancher le pain ou la baguette. Optionnel : toaster légèrement pour apporter du croustillant." }
+    },
+    proteines: {
+        poulet: { nom: "Poulet Grillé", icone: "🍗", desc: "120g de poitrine de poulet", etape: "Saisir le blanc de poulet à la poêle 4 min de chaque côté. Une fois bien doré, le couper en dés.", sauce: "citron", pourquoi: "Protéines très maigres" },
+        saumon: { nom: "Saumon Frais", icone: "🐟", desc: "120g de pavé de saumon frais", etape: "Couper le saumon en gros dés et les faire sauter délicatement à la poêle pendant 5 à 6 minutes.", sauce: "citron", pourquoi: "Riche en oméga-3" },
+        crevettes: { nom: "Crevettes Sautées", icone: "🍤", desc: "120g de crevettes décortiquées", etape: "Faire sauter les crevettes à la poêle à feu vif pendant 4 minutes jusqu'à ce qu'elles deviennent roses.", sauce: "citron", pourquoi: "Léger & hypocalorique" },
+        porc: { nom: "Porc Effiloché", icone: "🥩", desc: "120g de porc effiloché précuit", etape: "Réchauffer doucement le porc effiloché à la poêle ou au micro-ondes dans son jus pour garder le fondant.", sauce: "cheddar", pourquoi: "Ultra rassasiant & tendre" },
+        mignon: { nom: "Filet Mignon", icone: "🥩", desc: "120g de filet mignon en lamelles", etape: "Saisir rapidement les fines lamelles de filet mignon à la poêle à feu vif pendant 3 minutes.", sauce: "citron", pourquoi: "Viande tendre & noble" },
+        hache: { nom: "Viande Hachée", icone: "🍳", desc: "120g de viande hachée assaisonnée", etape: "Faire revenir la viande hachée à la poêle à feu moyen pendant 6 minutes en l'émiettant bien.", sauce: "cheddar", pourquoi: "Riche en fer complet" },
+        cotelette: { nom: "Côtelette de Porc", icone: "🥩", desc: "1 belle côtelette de porc parée", etape: "Saisir la côtelette à la poêle à feu moyen-vif de 4 à 5 minutes par côté, jusqu'à ce que le centre soit bien cuit.", sauce: "cheddar", pourquoi: "Gourmand & riche en vitamines B" },
+        travers: { nom: "Côtes Levées", icone: "🍖", desc: "1 portion de côtes levées précuites", etape: "Réchauffer les côtes levées au four ou sur le gril avec un peu de sauce pour caraméliser la viande.", sauce: "cheddar", pourquoi: "Ultra tendre et réconfortant" },
+        charcuterie: { nom: "Viandes Froides", icone: "🥪", desc: "120g d'assortiment de viandes froides (charcuteries)", etape: "Disposer les viandes froides en tranches ou en chiffonnade directement dans le plat.", sauce: "herbes", pourquoi: "Idéal, rapide et frais pour emporter" },
+        smoked_meat: { nom: "Smoked Meat", icone: "🥩", desc: "120g de smoked meat émincé", etape: "Réchauffer le smoked meat à la vapeur ou doucement à la poêle (ou servir froid si désiré).", sauce: "herbes", pourquoi: "Saveur deli classique et riche" }
+    },
+    legumes: {
+        zucchini: { nom: "Zucchini", desc: "1/2 zucchini en dés fondants" },
+        macedoine: { nom: "Macédoine de légumes", desc: "100g de macédoine de légumes cuits" },
+        tomate: { nom: "Tomate", desc: "1 tomate coupée en dés fondants" },
+        concombre: { nom: "Concombre", desc: "1/2 concombre poêlé" },
+        mais: { nom: "Maïs", desc: "50g de maïs en grains grillé" },
+        epinards: { nom: "Épinards", desc: "1 poignée d'épinards frais tombés" },
+        haricots: { nom: "Haricots / Pois", desc: "80g de haricots / pois cuits" },
+        radis: { nom: "Radis", desc: "4 radis coupés en rondelles poêlés" },
+        avocat: { nom: "Avocat", desc: "1/2 avocat poêlé en quartiers" },
+        artichaut: { nom: "Artichauts", desc: "3 à 4 cœurs d'artichauts grillés" },
+        palmier: { nom: "Cœurs de Palmier", desc: "50g de cœurs de palmier en rondelles" },
+        poivron: { nom: "Poivrons", desc: "1/2 poivron émincé et grillé" },
+        brocoli: { nom: "Brocoli", desc: "80g de florettes de brocoli vapeur" },
+        choufleur: { nom: "Chou-Fleur", desc: "80g de chou-fleur rôti" },
+        carotte: { nom: "Carottes", desc: "1 carotte en rondelles tendres" },
+        betterave: { nom: "Betteraves", desc: "1 petite betterave cuite en cubes" }
+    },
+    sauces: {
+        citron: {
+            titre: "Crème Citronnée (À chaud)",
+            ingredients: ["1 c. à s. de fromage à la crème", "1 c. à s. de crème sûre", "1/2 jus de citron frais", "Sel et poivre"],
+            etape: "Dans une petite casserole à feu très doux, fouetter le fromage à la crème, la crème sûre et le jus de citron jusqu'à obtenir un mélange fluide."
+        },
+        cheddar: {
+            titre: "Onctueuse au Cheddar (À chaud)",
+            ingredients: ["1 c. à s. de crème sûre", "1 c. à s. de fromage à la crème", "20g de cheddar râpé (fondu dedans)", "Un filet de jus de cuisson chaud"],
+            etape: "Faire chauffer doucement la crème sûre et le fromage à la crème, y jeter le cheddar et remuer pour créer une texture de sauce nacho."
+        },
+        alfredo: {
+            titre: "Sauce Alfredo Crémeuse (À chaud)",
+            ingredients: ["2 c. à s. de crème 35%", "1 c. à s. de beurre", "20g de parmesan râpé", "1/4 de gousse d'ail émincée"],
+            etape: "Faire fondre le beurre avec l'ail dans une casserole, ajouter la crème et laisser mijoter 2 minutes. Retirer du feu, incorporer le parmesan et remuer jusqu'à ce que la sauce épaississe."
+        },
+        carbonara: {
+            titre: "Style Carbonara Rapide (À chaud)",
+            ingredients: ["1 jaune d'œuf", "25g de parmesan râpé", "Poivre noir concassé", "Lardons ou chiffonnade de smoked meat poêlée"],
+            etape: "Fouetter le jaune d'œuf avec le parmesan et beaucoup de poivre dans un bol. Mélanger immédiatement aux pâtes ou pommes de terre brûlantes hors du feu avec un peu d'eau de cuisson pour créer une crème lisse."
+        },
+        herbes: {
+            titre: "Crème Sûre & Herbes (Froide / Tiède)",
+            ingredients: ["2 c. à s. de crème sûre", "1 c. à café de jus de citron", "Fines herbes (persil ou ciboulette)", "Sel et poivre"],
+            etape: "Mélanger à froid la crème sûre avec le jus de citron, les fines herbes, le sel et le poivre dans un petit bol jusqu'à consistance homogène."
+        }
+    }
+};
+
+function genererLaRecette() {
+    try {
+        const modeRepas = document.getElementById("modeRepas").value;
+        const nbPortions = parseInt(document.getElementById("portions").value);
+        const selFeculent = document.getElementById("feculent").value;
+        const selProteine = document.getElementById("proteine").value;
+        const selSauce = document.getElementById("sauceRepas").value;
+        const checkboxes = document.querySelectorAll('input[name="legumes"]:checked');
+        let selLegumes = [];
+        checkboxes.forEach((cb) => { selLegumes.push(cb.value); });
+
+        if (selLegumes.length === 0) { alert("Veuillez sélectionner au moins un légume !"); return; }
+        if (selLegumes.length > 4) { alert("Sélectionnez un maximum de 4 légumes pour garder la lisibilité."); return; }
+
+        const configFec = DATA_CONFIG.feculents[selFeculent];
+        const configProt = DATA_CONFIG.proteines[selProteine];
+        const typeSauce = selSauce;
+        const configSauce = DATA_CONFIG.sauces[typeSauce];
+
+        // Sauvegarde automatique des choix
+        const etatFormulaire = { modeRepas, nbPortions, selFeculent, selProteine, selSauce, selLegumes };
+        localStorage.setItem("assistant_cuisine_choix", JSON.stringify(etatFormulaire));
+
+        let texteMode = "Fiche Recette";
+        let iconeMode = "✦";
+        if (modeRepas === "lunch") { texteMode = "Boîte Repas / Lunch"; iconeMode = "🍱"; }
+        else if (modeRepas === "assiette") { texteMode = "Version Assiette"; iconeMode = "🍽️"; }
+        else if (modeRepas === "bowl") { texteMode = "Format Bowl"; iconeMode = "🥗"; }
+
+        document.getElementById("dynTitle").innerHTML = `${iconeMode} ${texteMode} — <span>${configProt.nom}</span> (${nbPortions} ${nbPortions > 1 ? 'Portions' : 'Portion'})`;
+        document.getElementById("dynIntro").innerText = `Votre fiche repas personnalisée générée pour ${nbPortions} personne(s) en mode ${texteMode.toLowerCase()}. Élaborée avec une base de ${configFec.nom.toLowerCase()} et des légumes entièrement cuits ou préparés.`;
+
+        // Calculs des macarons nutritionnels
+        const calculProtes = 35 * nbPortions;
+        const calculFibres = (4.5 * selLegumes.length) * nbPortions;
+        const calculGras = (12 + (typeSauce === "alfredo" || typeSauce === "carbonara" ? 15 : 5)) * nbPortions;
+        const calculSodium = (320 + (selProteine === "smoked_meat" || selProteine === "charcuterie" ? 400 : 0)) * nbPortions;
+        let totalSucre = 2 * nbPortions;
+        if (selLegumes.includes("mais") || selLegumes.includes("carotte")) totalSucre += (3 * nbPortions);
+
+        document.getElementById("dynBadges").innerHTML = `
+            <div class="badge"><div class="badge-icon">🥩</div><div class="badge-text"><b>PROTÉINES</b>${calculProtes}g</div></div>
+            <div class="badge"><div class="badge-icon">🥬</div><div class="badge-text"><b>FIBRES</b>${calculFibres.toFixed(1)}g</div></div>
+            <div class="badge"><div class="badge-icon">🥑</div><div class="badge-text"><b>GRAS (LIPIDES)</b>${calculGras}g</div></div>
+            <div class="badge"><div class="badge-icon">🧂</div><div class="badge-text"><b>SODIUM</b>${calculSodium}mg</div></div>
+            <div class="badge"><div class="badge-icon">🍎</div><div class="badge-text"><b>SUCRES</b>${totalSucre}g</div></div>
+        `;
+
+        const totalFec = configFec.quantite * nbPortions;
+        const totalProt = 120 * nbPortions;
+        const fromagePoids = typeSauce === "cheddar" ? 50 * nbPortions : 30 * nbPortions;
+        const fromageNom = typeSauce === "cheddar" ? `Cheddar râpé (${fromagePoids}g)` : (typeSauce === "citron" ? `Gouda en bloc ou cubes (${fromagePoids}g)` : "Parmesan ou Feta selon la sauce");
+
+        let itemsEpicerie = [
+            `<b>Rayon Frais / Viandes :</b> ${totalProt}g de ${configProt.nom.toLowerCase()} (${configProt.desc.replace("120g de ", "")})`,
+            `<b>Base / Féculents / Pains :</b> ${totalFec}${configFec.unite} ${configFec.desc}`,
+            `<b>Légumes :</b> ${selLegumes.map(l => DATA_CONFIG.legumes[l].nom).join(', ')}`,
+            `<b>Produits Laitiers / Sauce :</b> Crème, Beurre, Fromage, ${fromageNom}`,
+            `<b>Condiments de base :</b> Huile d'olive, Citrons frais, Ail, Sel fin, Poivre noir`
+        ];
+        
+        let htmlEpicerie = "";
+        itemsEpicerie.forEach((item, index) => {
+            htmlEpicerie += `<div class="epicerie-item"><input type="checkbox" id="epi-${index}" onchange="sauvegarderCasesEpicerie()"> <label for="epi-${index}">${item}</label></div>`;
+        });
+        document.getElementById("dynEpicerie").innerHTML = htmlEpicerie;
+
+        let htmlIngredients = `<li>• <b>Base sélectionnée :</b> ${totalFec}${configFec.unite} ${configFec.desc}</li>`;
+        htmlIngredients += `<li>• <b>Protéine :</b> ${totalProt}g de ${configProt.nom.toLowerCase()}</li>`;
+        selLegumes.forEach(leg => { htmlIngredients += `<li>• • ${DATA_CONFIG.legumes[leg].desc}</li>`; });
+        const fromageAssocie = typeSauce === "cheddar" ? `${30 * nbPortions}g de cheddar râpé` : `${30 * nbPortions}g de gouda ou feta en cubes`;
+        htmlIngredients += `<li>• <b>Fromage associé :</b> ${fromageAssocie}</li>`;
+        document.getElementById("dynIngredients").innerHTML = htmlIngredients;
+
+        document.getElementById("dynSauceTitle").innerText = `🍯 ${configSauce.titre}`;
+        let htmlSauce = "";
+        configSauce.ingredients.forEach(ing => { htmlSauce += `<li>• ${ing}</li>`; });
+        document.getElementById("dynSauce").innerHTML = htmlSauce;
+
+        let etapeDressageTexte = "";
+        if (modeRepas === "lunch") {
+            etapeDressageTexte = `Laisser tiédir les éléments. Déposer la base de ${configFec.nom.toLowerCase()} au fond de vos ${nbPortions} boîte(s) repas. Ajouter les légumes et la protéine. Placer le fromage et verser la sauce (ou mettre la sauce dans un contenant à part pour le transport).`;
+        } else if (modeRepas === "assiette") {
+            etapeDressageTexte = `Prendre de grandes assiettes chaudes. Disposer élégamment le lit de ${configFec.nom.toLowerCase()}, répartir la protéine bien saisie et les légumes à côté pour vos ${nbPortions} assiette(s). Parsemer de fromage pour qu'il fonde sur les éléments chauds et napper de sauce.`;
+        } else {
+            etapeDressageTexte = `Prendre de grands bols profonds. Placer le lit de ${configFec.nom.toLowerCase()} au fond. Disposer les légumes cuits et la protéine en sections colorées tout autour pour vos ${nbPortions} bol(s). Ajouter le fromage au centre et napper généreusement de sauce chaude !`;
+        }
+
+        let etapesTextes = [
+            { titre: configFec.nom, desc: configFec.etape },
+            { titre: configProt.nom, desc: configProt.etape },
+            { titre: "Cuisson Légumes", desc: "Dans une grande poêle, faire chauffer un filet d'huile et y verser vos légumes découpés (ou votre macédoine)." },
+            { titre: "Fin des Légumes", desc: "Laisser cuire doucement jusqu'à ce que les légumes soient bien chauds, fondants et légèrement dorés." },
+            { titre: "La Sauce", desc: configSauce.etape },
+            { titre: "Dressage Final", desc: etapeDressageTexte }
+        ];
+
+        let htmlSteps = "";
+        etapesTextes.forEach((et, index) => {
+            const descEscaped = et.desc.replace(/'/g, "\\'");
+            const titreEscaped = et.titre.replace(/'/g, "\\'");
+            htmlSteps += `<div class="step-card" onclick="ouvrirModal(${index + 1}, '${titreEscaped}', '${descEscaped}')"> <div class="step-header"> <div class="step-num">${index + 1}</div> <div class="step-name">${et.titre}</div> </div> <div class="step-desc">${et.desc}</div> </div>`;
+        });
+        document.getElementById("dynSteps").innerHTML = htmlSteps;
+
+        // Remplissage dynamique du bloc "Pourquoi il est top" pour qu'il ne soit plus vide
+        let conseilNutriSauce = "Fibres digestes et douces pour l'estomac.";
+        if (typeSauce === "alfredo" || typeSauce === "carbonara" || typeSauce === "cheddar") {
+            conseilNutriSauce = "Repas riche et réconfortant, idéal après un effort ou une longue journée.";
+        } else if (typeSauce === "citron" || typeSauce === "herbes") {
+            conseilNutriSauce = "Option plus légère et faible en lipides, parfaite pour un lunch actif.";
+        }
+        document.getElementById("dynPourquoi").innerHTML = `<h3>Pourquoi il est top</h3> <ul> <li>✓ Repas adapté au format ${modeRepas === "lunch" ? "boîte repas" : (modeRepas === "assiette" ? "assiette maison" : "bowl complet")}.</li> <li>✓ Quantités optimisées pour ${nbPortions} personne(s).</li> <li>✓ ${configProt.pourquoi}.</li> <li>✓ ${conseilNutriSauce}</li> </ul>`;
+        
+        const zoneEpicerie = document.getElementById("dynEpicerie");
+        const ancienBtn = document.getElementById("btnViderEpi");
+        if (ancienBtn) ancienBtn.remove();
+        
+        const nouveauBtn = document.createElement("button");
+        nouveauBtn.type = "button"; nouveauBtn.id = "btnViderEpi"; nouveauBtn.onclick = reinitialiserEpicerie;
+        nouveauBtn.innerText = "🔄 Vider les cases cochées";
+        nouveauBtn.style = "margin-top: 15px; background: #64748b; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-weight: bold; display: block;";
+        zoneEpicerie.appendChild(nouveauBtn);
+
+        // ========================================================
+        // DEBUT DE LA ZONE AJOUTÉE : BOUTON ORANGE COURRIEL
+        // ========================================================
+        const btnMail = document.createElement("button");
+        btnMail.type = "button";
+        btnMail.id = "btnMailEpi";
+        btnMail.onclick = envoyerEpicerieParCourriel;
+        btnMail.innerText = "✉️ Envoyer la liste par courriel";
+        btnMail.style = "margin-top: 10px; background: #ff6b35; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-size: 12px; cursor: pointer; text-transform: uppercase; font-weight: bold; display: block;";
+        zoneEpicerie.appendChild(btnMail);
+        // ========================================================
+        // FIN DE LA ZONE AJOUTÉE
+        // ========================================================
+
+        document.getElementById("ficheRecette").style.display = "block";
+        document.getElementById("ficheRecette").scrollIntoView({ behavior: 'smooth' });
+    } catch(err) {
+        console.error(err);
+        alert("Erreur lors de la génération. Vérifiez vos sélections.");
+    }
+}
+
+function reinitialiserEpicerie() {
+    const checkboxes = document.getElementById("dynEpicerie").querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    sauvegarderCasesEpicerie();
+}
+
+function sauvegarderCasesEpicerie() {
+    const checkboxes = document.getElementById("dynEpicerie").querySelectorAll('input[type="checkbox"]');
+    let etats = [];
+    checkboxes.forEach(cb => etats.push({ id: cb.id, coche: cb.checked }));
+    localStorage.setItem("assistant_cuisine_cases", JSON.stringify(etats));
+}
+
+function ouvrirModal(num, titre, description) {
+    document.getElementById("modalNum").innerText = num;
+    document.getElementById("modalTitle").innerText = titre;
+    document.getElementById("modalBody").innerText = description;
+    
+    clearInterval(minuteurInterval);
+    minuteurEnCours = false;
+    document.getElementById("btnTimerControl").innerText = "⏱️ Démarrer";
+    
+    let tempsMinutes = 0;
+    const titreNormalise = titre.toLowerCase();
+    
+    if (titreNormalise.includes("pâtes")) tempsMinutes = 10;
+    else if (titreNormalise.includes("riz")) tempsMinutes = 15;
+    else if (titreNormalise.includes("pommes de terre") || titreNormalise.includes("puree")) tempsMinutes = 20;
+    else if (titreNormalise.includes("dauphinois")) tempsMinutes = 45;
+    else if (titreNormalise.includes("légumes")) tempsMinutes = 8;
+    else if (titreNormalise.includes("poulet") || titreNormalise.includes("hachée")) tempsMinutes = 6;
+    else if (titreNormalise.includes("saumon") || titreNormalise.includes("porc")) tempsMinutes = 5;
+    else if (titreNormalise.includes("crevettes") || titreNormalise.includes("mignon")) tempsMinutes = 4;
+
+    const container = document.getElementById("timerContainer");
+    if (tempsMinutes > 0) {
+        tempsRestantSecondes = tempsMinutes * 60;
+        mettreAJourAffichageTimer();
+        container.style.display = "block";
+    } else {
+        container.style.display = "none";
+    }
+    
+    document.getElementById("stepModal").style.display = "flex";
+}
+
+function fermerModal() {
+    clearInterval(minuteurInterval);
+    minuteurEnCours = false;
+    document.getElementById("stepModal").style.display = "none";
+}
+
+function mettreAJourAffichageTimer() {
+    const min = Math.floor(tempsRestantSecondes / 60);
+    const sec = tempsRestantSecondes % 60;
+    document.getElementById("timerDisplay").innerText = 
+        `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+}
+
+function basculerMinuteur() {
+    const btn = document.getElementById("btnTimerControl");
+    if (minuteurEnCours) {
+        clearInterval(minuteurInterval);
+        minuteurEnCours = false;
+        btn.innerText = "⏱️ Reprendre";
+    } else {
+        minuteurEnCours = true;
+        btn.innerText = "⏸️ Pause";
+        minuteurInterval = setInterval(function() {
+            if (tempsRestantSecondes > 0) {
+                tempsRestantSecondes--;
+                mettreAJourAffichageTimer();
+            } else {
+                clearInterval(minuteurInterval);
+                minuteurEnCours = false;
+                btn.innerText = "⏱️ Terminé !";
+                
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                let bipsCount = 0;
+                const playBip = () => {
+                    if (bipsCount >= 3) return;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.2);
+                    bipsCount++;
+                    setTimeout(playBip, 400);
+                };
+                playBip();
+                alert("⏰ Temps écoulé ! Votre cuisson est prête.");
+            }
+        }, 1000);
+    }
+}
+
+function envoyerEpicerieParCourriel() {
+    const titreFiche = document.getElementById("dynTitle").innerText;
+    const items = document.getElementById("dynEpicerie").querySelectorAll(".epicerie-item label");
+    
+    let texteCorps = `Bonjour ! Voici ma liste d'épicerie pour ma fiche : ${titreFiche}\n\n`;
+    items.forEach(item => {
+        texteCorps += `[ ] ${item.innerText}\n`;
+    });
+    texteCorps += `\nGénéré avec mon Assistant Cuisine Pro.`;
+    
+    const sujet = encodeURIComponent(`🛒 Ma liste d'épicerie — ${titreFiche}`);
+    const corps = encodeURIComponent(texteCorps);
+    window.location.href = `mailto:?subject=${sujet}&body=${corps}`;
+}
+// RESTAURATION AUTOMATIQUE AU CHARGEMENT DE LA PAGE
+window.onload = function() {
+    const memoireChoix = localStorage.getItem("assistant_cuisine_choix");
+    if (memoireChoix) {
+        const d = JSON.parse(memoireChoix);
+        document.getElementById("modeRepas").value = d.modeRepas;
+        document.getElementById("portions").value = d.nbPortions;
+        document.getElementById("feculent").value = d.selFeculent;
+        document.getElementById("proteine").value = d.selProteine;
+        document.getElementById("sauceRepas").value = d.selSauce;
+        
+        const checkboxes = document.querySelectorAll('input[name="legumes"]');
+        checkboxes.forEach(cb => { cb.checked = d.selLegumes.includes(cb.value); });
+        
+        genererLaRecette();
+        
+        const memoireCases = localStorage.getItem("assistant_cuisine_cases");
+        if (memoireCases) {
+            const etats = JSON.parse(memoireCases);
+            etats.forEach(e => {
+                const box = document.getElementById(e.id);
+                if (box) box.checked = e.coche;
+            });
+        }
+    }
+};
+</script>
+</body>
+</html>
