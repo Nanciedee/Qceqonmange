@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificateur Hebdomadaire de Repas Intelligent</title>
+    <style>
+        body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f4f6fa; margin: 0; padding: 20px; color: #1e293b; }
+        .app-container { max-width: 1350px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px; }
+        
+        /* BARRE DE NAVIGATION MAÎTRE - BLEU ROYAL SUR ÉCRAN */
+        .master-nav { background: #0f4c81; width: 100%; padding: 12px 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.05); box-sizing: border-box; }
+        .nav-brand { color: #ffffff; font-weight: 800; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .nav-links a { color: #ffffff; text-decoration: none; font-size: 13px; font-weight: bold; text-transform: uppercase; padding: 8px 16px; border-radius: 8px; background: rgba(255, 255, 255, 0.15); transition: background 0.2s; }
+        .nav-links a:hover { background: #ff6b35; }
+
+        header { background: #0f4c81; color: white; padding: 25px 30px; border-radius: 20px; box-shadow: 0 10px 25px rgba(15,76,129,0.15); }
+        header h1 { margin: 0; font-size: 28px; text-transform: uppercase; letter-spacing: 0.5px; }
+        header p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.9; }
+
+        /* GRILLE DES 7 JOURS AVEC LES 3 REPAS */
+        .semaine-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 25px; }
+        .jour-card { background: white; border-radius: 25px; padding: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
+        .jour-card h3 { color: #0f4c81; margin-top: 0; margin-bottom: 20px; font-size: 20px; text-transform: uppercase; border-bottom: 3px solid #ffbc42; padding-bottom: 5px; text-align: center; }
+        
+        /* SECTIONS REPAS (DÉJEUNER, DÎNER, SOUPER) */
+        .repas-section { background: #f8fafc; border-radius: 12px; padding: 12px; margin-bottom: 15px; border-left: 4px solid #ff6b35; }
+        .repas-section.dejeuner { border-left-color: #ffbc42; } /* Jaune pour le matin */
+        .repas-section.diner { border-left-color: #0f4c81; }    /* Bleu pour le midi */
+        .repas-section.souper { border-left-color: #ff6b35; }   /* Orange pour le soir */
+        .repas-title { font-weight: bold; font-size: 13px; text-transform: uppercase; color: #334155; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+        .form-group { margin-bottom: 8px; }
+        .form-group label { display: block; margin-bottom: 2px; font-size: 11px; color: #64748b; text-transform: uppercase; }
+        .form-group select { width: 100%; padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; background: white; font-size: 13px; color: #334155; }
+        
+        .checkbox-container { background: white; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px; max-height: 90px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .checkbox-container label { display: flex; align-items: center; gap: 4px; font-size: 11px; margin: 0; cursor: pointer; }
+
+        .btn-principal { background: #ff6b35; color: white; border: none; padding: 18px 30px; border-radius: 15px; font-weight: bold; font-size: 18px; cursor: pointer; text-transform: uppercase; width: 100%; letter-spacing: 1px; box-shadow: 0 4px 15px rgba(255,107,53,0.3); transition: background 0.2s; }
+        .btn-principal:hover { background: #e05322; }
+
+        /* RÉSULTATS & BILAN */
+        .resultats-box { background: #faf9f5; border-radius: 25px; padding: 30px; border: 2px solid #ffbc42; display: none; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        .resultats-box h2 { color: #0f4c81; margin-top: 0; text-transform: uppercase; font-size: 24px; border-bottom: 3px solid #ffbc42; padding-bottom: 8px; }
+        
+        /* LES 5 MACARONS */
+        .nutri-badges { display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap; }
+        .badge { background: white; border-radius: 20px; padding: 10px 16px; display: flex; align-items: center; gap: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e2e8f0; min-width: 140px; }
+        .badge-icon { font-size: 18px; background: #edf2f7; width: 36px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .badge-text { font-size: 12px; color: #4a5568; }
+        .badge-text b { color: #0f4c81; display: block; font-size: 11px; }
+
+        /* ÉPICERIE CONSOLIDÉE */
+        .liste-epicerie { background: #f8fafc; border: 2px dashed #0f4c81; border-radius: 15px; padding: 25px; margin-top: 25px; }
+        .epicerie-item { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: 14px; border-bottom: 1px dashed #e2e8f0; color: #334155; }
+        .epicerie-item input { width: 18px; height: 16px; cursor: pointer; }
+        
+        .btn-action { background: #0f4c81; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; text-transform: uppercase; margin-right: 10px; margin-bottom: 15px; }
+        .btn-action.secondary { background: #64748b; }
+
+        /* CONFIGURATION POUR IMPRESSION DU PLANNING + DE L'ÉPICERIE SUR PAPIER OU EN PDF */
+        @media print {
+            .semaine-grid, .btn-principal, .btn-action, .master-nav, #btnViderSem, .epicerie-item input { display: none !important; }
+            body { padding: 0; background: white; }
+            .resultats-box { display: block !important; box-shadow: none; border: none; padding: 0; }
+            .liste-epicerie { background: transparent !important; border: 2px solid #0f4c81 !important; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- BARRE DE NAVIGATION MAÎTRE - CORRIGÉE POUR REPOINTER SUR INDEX.HTML -->
+    <nav class="master-nav">
+        <div class="nav-brand">🍳 Mon Assistant Cuisine Pro</div>
+        <div class="nav-links">
+            <a href="index.html">🍳 Aller au Générateur de Fiche Unique ➔</a>
+        </div>
+    </nav>
+
+    <header>
+        <h1>🗓️ Planificateur Hebdomadaire Intelligent (3 Repas/Jour)</h1>
+        <p>Planifiez vos déjeuners, dîners et soupers pour toute la semaine. L'application compilera instantanément vos nutriments globaux et votre liste d'épicerie complète.</p>
+    </header>
+
+    <!-- GRILLE DES 7 JOURS (Remplie dynamiquement par le script) -->
+    <div class="semaine-grid" id="semaineFormGrid"></div>
+
+    <!-- BOUTON DE COMPILATION -->
+    <button type="button" class="btn-principal" onclick="compilerLaSemaine()">✨ Compiler mon menu & mon épicerie</button>
+
+    <!-- ZONE DU BILAN DE LA SEMAINE -->
+    <div class="resultats-box" id="bilanSemaine">
+        <h2>📊 Bilan de votre semaine de repas</h2>
+        
+        <div>
+            <!-- BOUTON IMPRESSION / CRÉATION PDF -->
+            <button type="button" class="btn-action" onclick="setTimeout(function(){ window.print(); }, 10)">🖨️ Imprimer / Créer un PDF</button>
+            
+            <!-- ========================================================
+                 ZONE AJOUTÉE : LE BOUTON COURRIEL POUR LE MENU
+                 ======================================================== -->
+            <button type="button" class="btn-action" onclick="envoyerMenuSemaineParCourriel()" style="background: #ff6b35;">✉️ Envoyer mon menu par courriel</button>
+        </div>
+
+        <!-- LES 5 MACARONS NUTRITIONNELS CONSOLIDÉS -->
+        <div class="nutri-badges" id="semBadges"></div>
+
+        <!-- RECAPITULATIF DES MENUS PAR JOUR -->
+        <div style="margin-top: 25px;">
+            <div style="background: white; border-radius: 20px; padding: 25px; border: 1px solid #ebdccb; margin-bottom: 25px;">
+                <h3 style="color: #0f4c81; margin-top:0; text-transform: uppercase; border-bottom: 2px solid #ffbc42; padding-bottom: 5px;">📋 Votre Menu de la Semaine :</h3>
+                <ul id="semRecapMenus" style="list-style: none; padding: 0; line-height: 1.8;"></ul>
+            </div>
+        </div>
+
+        <!-- GRANDE LISTE D'ÉPICERIE CONSOLIDÉE -->
+        <div class="liste-epicerie">
+            <h3>🛒 Liste d'épicerie consolidée pour la semaine</h3>
+            <div id="semEpicerie"></div>
+           <button type="button" class="btn-action" onclick="envoyerEpicerieSemaineParCourriel()" style="background: #ff6b35; margin-top: 15px;">✉️ Envoyer l'épicerie par courriel</button>
+            
+            <button type="button" class="btn-action secondary" id="btnViderSem" onclick="viderEpicerieSemaine()" style="margin-top: 15px;">🔄 Vider les cases cochées</button>
+        </div>
+    </div>
+</div><button type="button" class="btn-action" onclick="envoyerEpicerieSemaineParCourriel()" style="background: #ff6b35; margin-top: 15px;">✉️ Envoyer l'épicerie par courriel</button>
+            
+            <button type="button" class="btn-action secondary" id="btnViderSem" onclick="viderEpicerieSemaine()" style="margin-top: 15px;">🔄 Vider les cases cochées</button>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT DE LOGIQUE ET DE CONFIGURATION -->
+<script>
+const INGREDIENTS_BASE = {
+    feculents: {
+        pates: { nom: "Pâtes", quantite: 150, unite: "g" },
+        riz: { nom: "Riz", quantite: 150, unite: "g" },
+        patates: { nom: "Pommes de terre en dés", quantite: 150, unite: "g" },
+        dauphinois: { nom: "Gratin Dauphinois", quantite: 200, unite: "g" },
+        puree: { nom: "Purée de pommes de terre", quantite: 180, unite: "g" },
+        lasagne: { nom: "Pâtes à Lasagne", quantite: 5, unite: " feuilles" },
+        naan_pita: { nom: "Pain Naan / Pita", quantite: 1, unite: " pain(s)" },
+        pain: { nom: "Pain / Baguette", quantite: 3, unite: " tranches" },
+        yogourt: { nom: "Yogourt (Nature / Grec)", quantite: 150, unite: "g" }
+    },
+    proteines: {
+        poulet: { nom: "Poulet Grillé", icone: "🍗", prot: 35, gras: 5, sod: 320, suc: 2, sauce: "citron" },
+        saumon: { nom: "Saumon Frais", icone: "🐟", prot: 32, gras: 14, sod: 310, suc: 2, sauce: "citron" },
+        crevettes: { nom: "Crevettes Sautées", icone: "🍤", prot: 28, gras: 3, sod: 380, suc: 2, sauce: "citron" },
+        porc: { nom: "Porc Effiloché", icone: "🥩", prot: 34, gras: 12, sod: 450, suc: 4, sauce: "cheddar" },
+        mignon: { nom: "Filet Mignon", icone: "🥩", prot: 38, gras: 8, sod: 300, suc: 2, sauce: "citron" },
+        hache: { nom: "Viande Hachée", icone: "🍳", prot: 34, gras: 15, sod: 340, suc: 2, sauce: "cheddar" },
+        cotelette: { nom: "Côtelette de Porc", icone: "🥩", prot: 36, gras: 11, sod: 320, suc: 2, sauce: "cheddar" },
+        travers: { nom: "Côtes Levées", icone: "🍖", prot: 30, gras: 18, sod: 520, suc: 6, sauce: "cheddar" },
+        charcuterie: { nom: "Viandes Froides ou fromage", icone: "🥪", prot: 24, gras: 16, sod: 850, suc: 3, sauce: "herbes" },
+        smoked_meat: { nom: "Smoked Meat", icone: "🥩", prot: 26, gras: 14, sod: 920, suc: 3, sauce: "herbes" },
+        fruits: { nom: "Fruits Frais Assortis", icone: "🍓", prot: 2, gras: 0, sod: 5, suc: 12, sauce: "herbes" }
+    },
+    legumes: {
+        zucchini: { nom: "Zucchini" }, macedoine: { nom: "Macédoine de légumes" }, tomate: { nom: "Tomate" },
+        concombre: { nom: "Concombre" }, mais: { nom: "Maïs" }, epinards: { nom: "Épinards" },
+        haricots: { nom: "Haricots / Pois" }, radis: { nom: "Radis" }, avocat: { nom: "Avocat" },
+        artichaut: { nom: "Artichauts" }, palmier: { nom: "Cœurs de Palmier" }, poivron: { nom: "Poivrons" },
+        brocoli: { nom: "Brocoli" }, choufleur: { nom: "Chou-Fleur" }, carotte: { nom: "Carottes" }, betterave: { nom: "Betteraves" }
+    }
+};
+
+const JOURS = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+const REPAS_TYPES = [
+    { id: "dej", nom: "Déjeuner", icone: "🍳", classe: "dejeuner" },
+    { id: "din", nom: "Dîner", icone: "🍱", classe: "diner" },
+    { id: "sup", nom: "Souper", icone: "🍽️", classe: "souper" }
+];
+
+window.onload = function() {
+    let htmlGrid = "";
+    JOURS.forEach(jour => {
+        htmlGrid += `<div class="jour-card" id="card-${jour}"><h3>📅 ${jour}</h3>`;
+        
+        REPAS_TYPES.forEach(repas => {
+            htmlGrid += `
+            <div class="repas-section ${repas.classe}">
+                <div class="repas-title">${repas.icone} ${repas.nom}</div>
+                
+                <div class="form-group">
+                    <label>Portions :</label>
+                    <select id="portions-${jour}-${repas.id}">
+                        <option value="0">Aucun repas planifié</option>
+                        <option value="1" ${repas.id !== 'dej' ? 'selected' : ''}>1 personne</option>
+                        <option value="2">2 personnes</option>
+                        <option value="4">4 personnes</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Base (Féculent / Pain) :</label>
+                    <select id="feculent-${jour}-${repas.id}">
+                        <option value="pates">Pâtes</option> <option value="riz" ${repas.id === 'din' ? 'selected' : ''}>Riz</option>
+                        <option value="patates" ${repas.id === 'sup' ? 'selected' : ''}>Pommes de terre en dés</option> <option value="dauphinois">Gratin Dauphinois</option>
+                        <option value="puree">Purée de p. de terre</option> <option value="lasagne">Pâtes à Lasagne</option>
+                        <option value="naan_pita">Pain Naan / Pita</option> <option value="pain" ${repas.id === 'dej' ? 'selected' : ''}>Pain / Baguette</option>
+                        <option value="yogourt" ${repas.id === 'dej' ? 'selected' : ''}>Yogourt (Nature / Grec)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Protéine / Accompagnement :</label>
+                    <select id="proteine-${jour}-${repas.id}">
+                        <option value="poulet">Poulet Grillé</option> <option value="saumon" ${repas.id === 'sup' ? 'selected' : ''}>Saumon Frais</option>
+                        <option value="crevettes">Crevettes Sautées</option> <option value="porc">Porc Effiloché</option>
+                        <option value="mignon">Filet Mignon</option> <option value="hache">Viande Hachée</option>
+                        <option value="cotelette">Côtelette de Porc</option> <option value="travers">Côtes Levées</option>
+                        <option value="charcuterie">Viandes Froides ou fromage</option> <option value="smoked_meat" ${repas.id === 'din' ? 'selected' : ''}>Smoked Meat</option>
+                        <option value="fruits" ${repas.id === 'dej' ? 'selected' : ''}>Fruits Frais Assortis</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Légumes (Max 3) :</label>
+                    <div class="checkbox-container" id="legs-${jour}-${repas.id}">
+                        <label><input type="checkbox" value="zucchini" checked> Zucchini</label>
+                        <label><input type="checkbox" value="macedoine"> Macédoine</label>
+                        <label><input type="checkbox" value="tomate"> Tomate</label>
+                        <label><input type="checkbox" value="concombre"> Concombre</label>
+                        <label><input type="checkbox" value="mais"> Maïs</label>
+                        <label><input type="checkbox" value="epinards"> Épinards</label>
+                        <label><input type="checkbox" value="haricots"> Haricots / Pois</label>
+                        <label><input type="checkbox" value="artichaut"> Artichauts</label>
+                        <label><input type="checkbox" value="palmier"> Cœurs Palmier</label>
+                        <label><input type="checkbox" value="poivron"> Poivrons</label>
+                        <label><input type="checkbox" value="brocoli"> Brocoli</label>
+                        <label><input type="checkbox" value="carotte"> Carottes</label>
+                    </div>
+                </div>
+            </div>`;
+        });
+        
+        htmlGrid += `</div>`;
+    });
+    document.getElementById("semaineFormGrid").innerHTML = htmlGrid;
+    restaurerDonneesSemaine();
+};
+
+function compilerLaSemaine() {
+    try {
+        let totalProt = 0, totalFibres = 0, totalGras = 0, totalSodium = 0, totalSucres = 0;
+        let epicerieConsolidee = { feculents: {}, proteines: {}, legumes: {} };
+        let htmlMenus = "";
+        let donneesSemaine = {};
+
+        JOURS.forEach(jour => {
+            let htmlJourRepas = "";
+            donneesSemaine[jour] = {};
+            
+            REPAS_TYPES.forEach(repas => {
+                const portions = parseInt(document.getElementById(`portions-${jour}-${repas.id}`).value);
+                const valFec = document.getElementById(`feculent-${jour}-${repas.id}`).value;
+                const valProt = document.getElementById(`proteine-${jour}-${repas.id}`).value;
+
+                const containerLegs = document.getElementById(`legs-${jour}-${repas.id}`);
+                const checkboxes = containerLegs.querySelectorAll('input[type="checkbox"]:checked');
+                let lesLegumesDuRepas = [];
+                checkboxes.forEach(cb => lesLegumesDuRepas.push(cb.value));
+
+                donneesSemaine[jour][repas.id] = { portions, valFec, valProt, lesLegumesDuRepas };
+
+                if (portions === 0) return;
+
+                const configFec = INGREDIENTS_BASE.feculents[valFec];
+                const configProt = INGREDIENTS_BASE.proteines[valProt];
+
+                checkboxes.forEach(cb => {
+                    if (!epicerieConsolidee.legumes[cb.value]) epicerieConsolidee.legumes[cb.value] = 0;
+                    epicerieConsolidee.legumes[cb.value] += portions;
+                });
+
+                totalProt += configProt.prot * portions;
+                totalGras += configProt.gras * portions;
+                totalSodium += configProt.sod * portions;
+                
+                let sucreRepas = configProt.suc;
+                if (lesLegumesDuRepas.includes("mais") || lesLegumesDuRepas.includes("carotte")) sucreRepas += 3;
+                totalSucres += sucreRepas * portions;
+                totalFibres += (3.5 * lesLegumesDuRepas.length) * portions;
+
+                if (!epicerieConsolidee.feculents[valFec]) epicerieConsolidee.feculents[valFec] = 0;
+                epicerieConsolidee.feculents[valFec] += (configFec.quantite * portions);
+
+                if (!epicerieConsolidee.proteines[valProt]) epicerieConsolidee.proteines[valProt] = 0;
+                epicerieConsolidee.proteines[valProt] += (120 * portions);
+
+                htmlJourRepas += ` [${repas.nom}: ${configProt.icone} ${configProt.nom} + ${configFec.nom.toLowerCase()} (${portions}p)]`;
+            });
+
+            if (htmlJourRepas !== "") {
+                htmlMenus += `<li><b>${jour} :</b>${htmlJourRepas}</li>`;
+            }
+        });
+
+        localStorage.setItem("assistant_semaine_choix", JSON.stringify(donneesSemaine));
+        document.getElementById("semRecapMenus").innerHTML = htmlMenus || "<li>Aucun repas planifié pour cette semaine.</li>";
+
+        document.getElementById("semBadges").innerHTML = `
+            <div class="badge"><div class="badge-icon">🥩</div><div class="badge-text"><b>PROTÉINES</b>${totalProt}g</div></div>
+            <div class="badge"><div class="badge-icon">🥬</div><div class="badge-text"><b>FIBRES</b>${totalFibres.toFixed(1)}g</div></div>
+            <div class="badge"><div class="badge-icon">🥑</div><div class="badge-text"><b>GRAS (LIPIDES)</b>${totalGras}g</div></div>
+            <div class="badge"><div class="badge-icon">🧂</div><div class="badge-text"><b>SODIUM</b>${totalSodium}mg</div></div>
+            <div class="badge"><div class="badge-icon">🍎</div><div class="badge-text"><b>SUCRES</b>${totalSucres}g</div></div>
+        `;
+
+        let htmlEpicerie = "";
+        let indexItem = 0;
+
+        for (let key in epicerieConsolidee.proteines) {
+            htmlEpicerie += `<div class="epicerie-item"><span class="print-only-square">⬜</span> <input type="checkbox" id="sem-epi-${indexItem}" onchange="sauvegarderCasesSemaine()"> <label for="sem-epi-${indexItem}"><b>Boucherie / Poissonnerie / Matin :</b> ${epicerieConsolidee.proteines[key]}g de ${INGREDIENTS_BASE.proteines[key].nom}</label></div>`;
+            indexItem++;
+        }
+        for (let key in epicerieConsolidee.feculents) {
+            htmlEpicerie += `<div class="epicerie-item"><span class="print-only-square">⬜</span> <input type="checkbox" id="sem-epi-${indexItem}" onchange="sauvegarderCasesSemaine()"> <label for="sem-epi-${indexItem}"><b>Féculents / Pains / Bases :</b> ${epicerieConsolidee.feculents[key]}${INGREDIENTS_BASE.feculents[key].unite} de ${INGREDIENTS_BASE.feculents[key].nom}</label></div>`;
+            indexItem++;
+        }
+        for (let key in epicerieConsolidee.legumes) {
+            htmlEpicerie += `<div class="epicerie-item"><span class="print-only-square">⬜</span> <input type="checkbox" id="sem-epi-${indexItem}" onchange="sauvegarderCasesSemaine()"> <label for="sem-epi-${indexItem}"><b>Rayon Fruits & Légumes :</b> ${INGREDIENTS_BASE.legumes[key].nom} (Pour ${epicerieConsolidee.legumes[key]} repas)</label></div>`;
+            indexItem++;
+        }
+        
+        htmlEpicerie += `<div class="epicerie-item"><span class="print-only-square">⬜</span> <input type="checkbox" id="sem-epi-${indexItem}" onchange="sauvegarderCasesSemaine()"> <label for="sem-epi-${indexItem}"><b>Bases de sauces au choix :</b> Crème, Fromage à la crème, Crème sûre, Parmesan, Beurre, Lait</label></div>`;
+        indexItem++;
+        htmlEpicerie += `<div class="epicerie-item"><span class="print-only-square">⬜</span> <input type="checkbox" id="sem-epi-${indexItem}" onchange="sauvegarderCasesSemaine()"> <label for="sem-epi-${indexItem}"><b>Garde-manger :</b> Huile d'olive, Citrons frais, Ail, Muscade, Sel, Poivre noir</label></div>`;
+
+        document.getElementById("semEpicerie").innerHTML = htmlEpicerie;
+        document.getElementById("bilanSemaine").style.display = "block";
+        document.getElementById("bilanSemaine").scrollIntoView({ behavior: 'smooth' });
+
+    } catch(err) {
+        console.error(err);
+        alert("Une erreur est survenue lors du calcul.");
+    }
+}
+
+function viderEpicerieSemaine() {
+    const checkboxes = document.getElementById("semEpicerie").querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    sauvegarderCasesSemaine();
+}
+
+function sauvegarderCasesSemaine() {
+    const checkboxes = document.getElementById("semEpicerie").querySelectorAll('input[type="checkbox"]');
+    let etats = [];
+    checkboxes.forEach(cb => etats.push({ id: cb.id, coche: cb.checked }));
+    localStorage.setItem("assistant_semaine_cases", JSON.stringify(etats));
+}
+
+// ========================================================
+// DEBUT DE LA ZONE AJOUTÉE : LOGIQUE D'ENVOI PAR MAIL
+// ========================================================
+function envoyerEpicerieSemaineParCourriel() {
+    const items = document.getElementById("semEpicerie").querySelectorAll(".epicerie-item label");
+    let texteCorps = `Bonjour ! Voici ma liste d'épicerie consolidée pour ma semaine de repas :\n\n`;
+    items.forEach(item => { texteCorps += `[ ] ${item.innerText}\n`; });
+    texteCorps += `\nGénéré avec mon Planificateur Hebdomadaire Assistant Cuisine Pro.`;
+    const sujet = encodeURIComponent(`🛒 Ma super liste d'épicerie de la semaine`);
+    const corps = encodeURIComponent(texteCorps);
+    window.location.href = `mailto:?subject=${sujet}&body=${corps}`;
+}
+
+// ========================================================
+// DEBUT DE LA ZONE AJOUTÉE : LOGIQUE D'ENVOI DU MENU PAR MAIL
+// ========================================================
+function envoyerMenuSemaineParCourriel() {
+    const menus = document.getElementById("semRecapMenus").querySelectorAll("li");
+    
+    let texteCorps = `Bonjour ! Voici mon calendrier de repas planifié pour la semaine :\n\n`;
+    menus.forEach(menu => {
+        texteCorps += `• ${menu.innerText}\n`;
+    });
+    texteCorps += `\nBon appétit !\nGénéré avec mon Planificateur Hebdomadaire Assistant Cuisine Pro.`;
+    
+    const sujet = encodeURIComponent(`📋 Mon calendrier de repas de la semaine`);
+    const corps = encodeURIComponent(texteCorps);
+    
+    // Ouvre le courriel avec tout votre horaire de repas de la semaine rédigé de façon claire !
+    window.location.href = `mailto:?subject=${sujet}&body=${corps}`;
+}
+// ========================================================
+// FIN DE LA ZONE AJOUTÉE
+// ========================================================
+
+// FONCTION MAJEURE : RECHARGE AUTOMATIQUEMENT LES 21 REPAS
+function restaurerDonneesSemaine() {
+    const memoireChoix = localStorage.getItem("assistant_semaine_choix");
+    if (memoireChoix) {
+        const d = JSON.parse(memoireChoix);
+        JOURS.forEach(jour => {
+            if (!d[jour]) return;
+            REPAS_TYPES.forEach(repas => {
+                if (!d[jour][repas.id]) return;
+                const r = d[jour][repas.id];
+                
+                document.getElementById(`portions-${jour}-${repas.id}`).value = r.portions;
+                document.getElementById(`feculent-${jour}-${repas.id}`).value = r.valFec;
+                document.getElementById(`proteine-${jour}-${repas.id}`).value = r.valProt;
+                
+                const containerLegs = document.getElementById(`legs-${jour}-${repas.id}`);
+                if (containerLegs) {
+                    const checkboxes = containerLegs.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(cb => {
+                        cb.checked = r.lesLegumesDuRepas.includes(cb.value);
+                    });
+                }
+            });
+        });
+        
+        compilerLaSemaine();
+        
+        const memoireCases = localStorage.getItem("assistant_semaine_cases");
+        if (memoireCases) {
+            const etats = JSON.parse(memoireCases);
+            etats.forEach(e => {
+                const box = document.getElementById(e.id);
+                if (box) box.checked = e.coche;
+            });
+        }
+    }
+}
+</script>
+</body>
+</html>
